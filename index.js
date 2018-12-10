@@ -33,7 +33,7 @@ function getAppKey () {
 
 async function init () {
   APP_KEY = JSON.parse(await getAppKey()).key
-  app.listen(80, () => console.log('App running!'))
+  app.listen(3000, () => console.log('App running!'))
 }
 
 init()

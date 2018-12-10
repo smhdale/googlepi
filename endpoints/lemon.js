@@ -1,40 +1,49 @@
-// This entire endpoint is built to respond to the phrase, "Where is lemon?"
-const fetch = require('node-fetch')
+// This endpoint is for stupid memes.
 const mpv = require('node-mpv')
-const player = new mpv({ socket: '/tmp/youtube-mpv.sock' }, [ '--volume=80' ])
+const player = new mpv({ audio_only: true })
+const MEDIA_DIR = __dirname + '/../media/'
 
 const ENDPOINTS = [
   '/lemon',
-  '/lemon-stop'
+  '/lemon-stop',
+  '/eggs'
 ]
-const API_KEY = 'AIzaSyDNKqae7h0bCwkcIooDPTAXXtsJKwgXwJw'
 
-const apiSearch = q => `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&part=snippet&maxResults=1&type=video&q=${q}`
-const videoUrl = id => `https://youtu.be/${id}`
-
-function get (url) {
-  return fetch(url).then(resp => resp.text())
+function play (file) {
+  player.load(MEDIA_DIR + file)
 }
 
-// Track playing status
-let playing = false
-ytPlayer.on('stopped', status => {
-  playing = false
-})
+function stopPlaying (req, res) {
+  player.stop()
+  res.sendStatus(200)
+}
+
+/**
+ * LEMON
+ */
 
 async function playLemon (req, res) {
-  // Get YouTube video URL
-  const videoId = await get(apiSearch('lemon'))
-  player.loadStream(videoUrl(videoId))
-  res.send('Where is lemon???')
+  player.volume(75)
+  play('lemon.mp3')
+  res.sendStatus(200)
 }
 
-function stopLemon (req, res) {
-  if (playing) { player.stop() }
-  res.send('No more lemon :(')
+/**
+ * EGGS
+ */
+
+function playEggs (req, res) {
+  player.volume(100)
+  play('eggs.mp3')
+  res.sendStatus(200)
 }
+
+/**
+ * Register function for endpoints
+ */
 
 module.exports.register = function (app) {
   app.get(ENDPOINTS[0], playLemon)
-  app.get(ENDPOINTS[1], stopLemon)
+  app.get(ENDPOINTS[1], stopPlaying)
+  app.get(ENDPOINTS[2], playEggs)
 }
